@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Git Sketchbook</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="notebook-binding"></div>
+    <main class="sketchbook">
+        <header class="hero">
+            <h1>The Git Sketchbook</h1>
+            <p class="subtitle">A visual journey through version control</p>
+            <p class="instruction">Scroll down to explore the concepts</p>
+        </header>
+
+        <section id="concept-1" class="sketch-card">
+            <div class="tape"></div>
+            <h2>1. The Commit</h2>
+            <div class="content-wrapper">
+                <div class="visual-container">
+                    <button class="reset-btn" onclick="gitCmd.reset(1)" title="Reset">↺</button>
+                    <div class="interactive-canvas" id="canvas-1">
+                        <!-- JS renders commits here -->
+                    </div>
+                    <div class="controls">
+                        <button class="sketch-btn" onclick="gitCmd.commit()">git commit</button>
+                    </div>
+                    <p class="hand-note">"Click to create a snapshot!"</p>
+                </div>
+                <div class="text-content">
+                    <h3>What is it?</h3>
+                    <p>A <strong>snapshot</strong> of your entire project — not a diff! (Git stores pointers to unchanged files for efficiency.)</p>
+                    
+                    <h4>Anatomy:</h4>
+                    <ul style="list-style: none; padding-left: 0; margin: 8px 0;">
+                        <li>📁 <strong>Snapshot</strong> — All file contents</li>
+                        <li>📝 <strong>Metadata</strong> — Author, date, message</li>
+                        <li>⬅️ <strong>Parent</strong> — Link to previous commit</li>
+                    </ul>
+                    
+                    <h4>🔒 Immutable!</h4>
+                    <p>Change <em>anything</em>? New hash = new commit.</p>
+                    
+                    <div class="interactive-box">
+                        <button class="tab-btn active" onclick="showTab(1, 'example')">Real World</button>
+                        <button class="tab-btn" onclick="showTab(1, 'code')">The Code</button>
+                        
+                        <div id="c1-example" class="tab-content active">
+                            <p><strong>Scenario:</strong> Finished the Login button? Commit it. If you break Logout later, you can always go back.</p>
+                        </div>
+                        <div id="c1-code" class="tab-content">
+                            <pre>git commit -m "Add login"
+# Stores: snapshot + metadata + parent</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="concept-2" class="sketch-card">
+            <div class="tape"></div>
+            <h2>2. Branches</h2>
+            <div class="content-wrapper">
+                <div class="visual-container">
+                    <button class="reset-btn" onclick="gitCmd.reset(2)" title="Reset">↺</button>
+                    <div class="interactive-canvas" id="canvas-2">
+                        <!-- JS renders branch tree here -->
+                    </div>
+                    <div class="controls">
+                        <input type="text" id="branch-name-input" class="sketch-input" value="feature" style="width: 80px;">
+                        <p class="small-instruction" style="width: 100%; margin: 5px 0;">Click a commit node above to place/move the branch!</p>
+                    </div>
+                    <p class="hand-note">"Branches are just sticky notes!"</p>
+                </div>
+                <div class="text-content">
+                    <h3>What is it?</h3>
+                    <p>⚠️ <strong>Not</strong> a copy of code! Just a lightweight <strong>pointer</strong> to a commit.</p>
+                    
+                    <h4>Key Facts:</h4>
+                    <ul style="list-style: none; padding-left: 0; margin: 8px 0;">
+                        <li>⚡ <strong>Instant creation</strong> — Just a tiny file with a hash</li>
+                        <li>📌 <strong>Movable</strong> — Moves forward with each new commit</li>
+                        <li>📁 <strong>File name = branch name</strong></li>
+                    </ul>
+                    
+                    <div class="interactive-box">
+                        <button class="tab-btn active" onclick="showTab(2, 'example')">Real World</button>
+                        <button class="tab-btn" onclick="showTab(2, 'code')">The Code</button>
+                        
+                        <div id="c2-example" class="tab-content active">
+                            <p><strong>Scenario:</strong> Main app is live. Create a `feature` branch to experiment. If it fails, just delete the branch — code untouched!</p>
+                        </div>
+                        <div id="c2-code" class="tab-content">
+                            <pre>git branch feature
+# Creates pointer (instant!)
+
+git checkout feature
+# Moves HEAD to feature branch</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="concept-head" class="sketch-card">
+            <div class="tape"></div>
+            <h2>3. The HEAD Pointer</h2>
+            <div class="content-wrapper">
+                <div class="visual-container">
+                    <button class="reset-btn" onclick="gitCmd.reset('head')" title="Reset">↺</button>
+                    <div class="interactive-canvas" id="canvas-head">
+                        <!-- JS renders HEAD simulation here -->
+                    </div>
+                    <div class="controls">
+                        <p class="small-instruction">
+                            <strong>Experiment:</strong><br>
+                            1. Click a <span style="color:#27ae60; font-weight:bold">Branch Label</span> to checkout (Attach HEAD).<br>
+                            2. Click a <span style="border:1px solid #333; border-radius:50%; padding:0 4px;">Commit Node</span> to checkout (Detach HEAD).
+                        </p>
+                    </div>
+                    <p class="hand-note">"You are here."</p>
+                </div>
+                <div class="text-content">
+                    <h3>What is it?</h3>
+                    <p>A special pointer that usually points to the <strong>current branch name</strong>.</p>
+                    <p><em>(It's how Git knows which branch you're on!)</em></p>
+                    
+                    <h4>The Chain:</h4>
+                    <p style="margin: 8px 0; font-family: monospace;">HEAD → branch → commit</p>
+                    
+                    <h4>⚠️ Detached HEAD:</h4>
+                    <p>Checkout a <em>commit hash</em> instead of branch? HEAD points directly to the commit.</p>
+                    <p><strong>Risk:</strong> New commits become "orphaned" — no branch tracks them → garbage collected!</p>
+                    
+                    <div class="interactive-box">
+                        <button class="tab-btn active" onclick="showTab('head', 'example')">Real World</button>
+                        <button class="tab-btn" onclick="showTab('head', 'code')">The Code</button>
+                        
+                        <div id="chead-example" class="tab-content active">
+                            <p><strong>Scenario:</strong> Want to see yesterday's code? Checkout the old commit. HEAD moves there, but branches stay put.</p>
+                        </div>
+                        <div id="chead-code" class="tab-content">
+                            <pre>git checkout feature
+# HEAD → feature (attached)
+
+git checkout a1b2c3
+# HEAD → commit (detached!)</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="concept-3" class="sketch-card">
+            <div class="tape"></div>
+            <h2>4. The Four Areas of Git</h2>
+            <div class="content-wrapper">
+                <div class="visual-container">
+                    <button class="reset-btn" onclick="gitCmd.reset(3)" title="Reset">↺</button>
+                    <div class="interactive-canvas three-areas-grid" id="canvas-3">
+                        <div class="area-col" id="area-working">
+                            <div class="area-label">Working Dir<br><small>(Sandbox)</small></div>
+                            <div class="file-item" onclick="gitCmd.stageFile(this)">file.txt</div>
+                        </div>
+                        <div class="area-col" id="area-staging">
+                            <div class="area-label">Staging<br><small>(Prep Zone)</small></div>
+                        </div>
+                        <div class="area-col" id="area-repo">
+                            <div class="area-label">Local Repo<br><small>(Database)</small></div>
+                        </div>
+                        <div class="area-col" id="area-remote">
+                            <div class="area-label">Remote Repo<br><small>(Cloud)</small></div>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button class="sketch-btn" onclick="gitCmd.addFile()">git add .</button>
+                        <button class="sketch-btn" onclick="gitCmd.commitArea()">git commit</button>
+                        <button class="sketch-btn" onclick="gitCmd.pushArea()">git push</button>
+                    </div>
+                    <p class="hand-note">"Move the file to the Cloud!"</p>
+                </div>
+                <div class="text-content">
+                    <h3>What is it?</h3>
+                    <p>To manage changes effectively, you must understand where they reside:</p>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li>1. <strong>Working Directory (The Sandbox):</strong> You edit files here.</li>
+                        <li>2. <strong>Staging Area (The Preparation Zone):</strong> <code>git add</code> moves changes here.</li>
+                        <li>3. <strong>Local Repository (The Database):</strong> <code>git commit</code> saves changes here (permanently history).</li>
+                        <li>4. <strong>Remote Repository (The Cloud):</strong> <code>git push</code> moves changes to a server like GitHub.</li>
+                    </ul>
+                    
+                    <div class="interactive-box">
+                        <button class="tab-btn active" onclick="showTab(3, 'example')">Real World</button>
+                        <button class="tab-btn" onclick="showTab(3, 'code')">The Code</button>
+                        
+                        <div id="c3-example" class="tab-content active">
+                            <p><strong>Scenario:</strong> You write code (Working). You pick the best parts (Staging). You take a snapshot (Commit). Finally, you upload it so your team can see it (Push).</p>
+                        </div>
+                        <div id="c3-code" class="tab-content">
+                            <pre>git add .
+# Moves changes Working -> Staging
+
+git commit -m "Save work"
+# Saves changes Staging -> Local Repo
+
+git push origin main
+# Uploads Local Repo -> Remote Repo</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="concept-4" class="sketch-card">
+            <div class="tape"></div>
+            <h2>5. Modifying Commit History</h2>
+            <div class="content-wrapper">
+                <div class="visual-container">
+                    <button class="reset-btn" onclick="gitCmd.reset(4)" title="Reset">↺</button>
+                    
+                    <div class="interactive-canvas" id="canvas-4" style="min-height: 250px; align-items: flex-start; padding-top: 40px;">
+                        <!-- Dynamic Content Rendered Here -->
+                    </div>
+                    
+                    <div class="controls" id="controls-4">
+                        <!-- Dynamic Controls Rendered Here -->
+                    </div>
+                    <p class="hand-note" id="note-4">"Choose a tool above!"</p>
+                </div>
+                <div class="text-content">
+                    <h3>The Undo Tools</h3>
+                    <p>Git gives you superpowers to rewrite time, but be careful!</p>
+                    
+                    <div class="interactive-box">
+                        <button class="tab-btn active" onclick="gitCmd.setModMode('reset', this)">Reset</button>
+                        <button class="tab-btn" onclick="gitCmd.setModMode('revert', this)">Revert</button>
+                        <button class="tab-btn" onclick="gitCmd.setModMode('rebase', this)">Rebase</button>
+                        
+                        <div id="c4-reset" class="tab-content active">
+                            <h4>Git Reset</h4>
+                            <p><strong>Action:</strong> Moves the <strong>Branch Pointer</strong> itself backward to an older commit.</p>
+                            <ul>
+                                <li><strong>Soft:</strong> Changes stay in <strong>Staging</strong>. (Safety: Moderate)</li>
+                                <li><strong>Mixed:</strong> Changes stay in <strong>Working Directory</strong>. (Safety: Low)</li>
+                                <li><strong>Hard:</strong> <strong>Destroys</strong> all changes. (Safety: Unsafe!)</li>
+                            </ul>
+                            <pre>git reset --soft HEAD~1
+# Undo commit, keep changes staged</pre>
+                        </div>
+                        <div id="c4-revert" class="tab-content">
+                            <h4>Git Revert</h4>
+                            <p><strong>Action:</strong> Creates a <strong>new commit</strong> that is the exact opposite of a previous commit.</p>
+                            <p><strong>Use:</strong> Safe way to "undo" changes on shared branches.</p>
+                            <p><strong>Safety:</strong> High (doesn't rewrite history).</p>
+                            <pre>git revert a1b2c
+# Safely undoes changes via new commit</pre>
+                        </div>
+                        <div id="c4-rebase" class="tab-content">
+                            <h4>Git Rebase</h4>
+                            <p><strong>Action:</strong> "Moves" a sequence of commits to a new base commit.</p>
+                            <p><strong>Use:</strong> Keep history clean/linear without merge commits.</p>
+                            <p><strong>Golden Rule:</strong> Never rebase public history! (Rewrites IDs).</p>
+                            <pre>git rebase main
+# Moves feature commits on top of main</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="concept-5" class="sketch-card">
+            <div class="tape"></div>
+            <h2>6. Git Reflog</h2>
+            <div class="content-wrapper">
+                <div class="visual-container">
+                    <button class="reset-btn" onclick="gitCmd.reset(5)" title="Reset">↺</button>
+                    <div class="interactive-canvas split-view" id="canvas-5">
+                        <div class="graph-side" id="reflog-graph">
+                            <!-- Graph rendered here -->
+                        </div>
+                        <div class="log-side" id="reflog-list">
+                            <div class="log-entry">HEAD@{0}: commit: initial</div>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button class="sketch-btn" onclick="gitCmd.resetHard()">git reset --hard</button>
+                        <button class="sketch-btn" onclick="gitCmd.recoverReflog()">Recover from Reflog</button>
+                    </div>
+                    <p class="hand-note">"Deleted? Not really."</p>
+                </div>
+                <div class="text-content">
+                    <h3>The Safety Net</h3>
+                    <p>🔮 <strong>Myth:</strong> "I deleted my branch and lost everything!"</p>
+                    <p>✅ <strong>Fact:</strong> Very hard to permanently lose committed data.</p>
+                    
+                    <h4>What is Reflog?</h4>
+                    <p>A local journal logging <em>every</em> HEAD movement — checkout, commit, reset, merge.</p>
+                    
+                    <h4>🗑️ Garbage Collection:</h4>
+                    <p>Commits only deleted when "unreachable" for ~90 days.</p>
+                    
+                    <div class="interactive-box">
+                        <button class="tab-btn active" onclick="showTab(5, 'example')">Recovery</button>
+                        <button class="tab-btn" onclick="showTab(5, 'code')">The Code</button>
+                        
+                        <div id="c5-example" class="tab-content active">
+                            <p><strong>Scenario:</strong> Ran <code>git reset --hard</code> and regret it?</p>
+                            <p>→ Find the "lost" hash in <code>git reflog</code>, then checkout to restore!</p>
+                        </div>
+                        <div id="c5-code" class="tab-content">
+                            <pre>git reflog
+# Shows: HEAD@{0}: reset, HEAD@{1}: commit...
+
+git checkout HEAD@{1}
+# Restore to before the reset</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>Aditya's notes</p>
+        </footer>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
