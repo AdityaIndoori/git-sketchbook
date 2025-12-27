@@ -1,4 +1,3 @@
-
 // --- Utility to manage tabs (kept from previous version) ---
 function showTab(conceptId, tabType) {
     let containerId = conceptId;
@@ -375,6 +374,7 @@ const gitCmd = {
     // 4. MODIFYING HISTORY (Reset, Revert, Rebase)
     modMode: 'reset',
     modState: 'initial', // initial, done
+    rebaseOffsetX: 220, // Store for execRebase to use
 
     initModHistory: function() {
         this.setModMode('reset');
@@ -575,47 +575,55 @@ const gitCmd = {
         }, 50);
     },
 
-    // --- REBASE VISUALS ---
+    // --- REBASE VISUALS (FIXED FOR MOBILE) ---
     renderRebase: function(canvas, controls) {
         canvas.style.position = 'relative';
         canvas.style.minHeight = '280px';
         canvas.style.display = 'block'; // Override flex from other modes
         
-        // Center the graph - calculate offset to center the visualization
-        // Graph spans from x=150 to x=310 (width ~160), canvas is typically ~600px wide
-        // Center offset = (canvasWidth - graphWidth) / 2 ≈ 220px for centering
-        const offsetX = 220; // Center offset
-        
-        // Layout: C1 at left, C2 to the right of C1 (main branch), C3 above C2 (feature branch)
-        const c1 = this.drawNode(canvas, offsetX, 140, 'C1');
-        c1.id = 'rebase-c1';
-        
-        const c2 = this.drawNode(canvas, offsetX + 160, 140, 'C2');
-        c2.id = 'rebase-c2';
-        // main label positioned well below C2's commit-msg
-        this.drawLabel(canvas, offsetX + 160, 220, 'main', '#27ae60', 'lbl-main');
-        
-        const c3 = this.drawNode(canvas, offsetX + 160, 50, 'C3');
-        c3.id = 'rebase-c3';
-        this.drawLabel(canvas, offsetX + 160, 15, 'feature', '#e67e22', 'lbl-feat');
-        
-        // Connections with arrows (arrow points to parent)
-        // C1 -> C2 (horizontal line) - at center height of nodes (y=140+25=165)
-        this.drawLine(canvas, offsetX + 50, 165, offsetX + 160, 165); // from C1 right edge to C2 left edge
-        
-        // C1 -> C3 (diagonal line going up-right)
-        const lineFeat = this.drawLine(canvas, offsetX + 50, 165, offsetX + 160, 75); // from C1 to C3
-        lineFeat.id = 'line-feat';
+        // MOBILE FIX: Calculate dynamic offset based on canvas width
+        // Wait for canvas to render to get accurate width
+        setTimeout(() => {
+            const canvasWidth = canvas.offsetWidth || 600;
+            // Use smaller spacing that fits mobile: total graph width ~300px
+            // Center it: (canvasWidth - 300) / 2, with minimum of 20px
+            const offsetX = Math.max(20, (canvasWidth - 300) / 2);
+            
+            // Store for execRebase to use
+            this.rebaseOffsetX = offsetX;
+            
+            // Layout: C1 at left, C2 to the right of C1 (main branch), C3 above C2 (feature branch)
+            // Using 100px spacing instead of 160px for mobile compatibility
+            const c1 = this.drawNode(canvas, offsetX, 140, 'C1');
+            c1.id = 'rebase-c1';
+            
+            const c2 = this.drawNode(canvas, offsetX + 100, 140, 'C2');
+            c2.id = 'rebase-c2';
+            // main label positioned well below C2's commit-msg
+            this.drawLabel(canvas, offsetX + 100, 220, 'main', '#27ae60', 'lbl-main');
+            
+            const c3 = this.drawNode(canvas, offsetX + 100, 50, 'C3');
+            c3.id = 'rebase-c3';
+            this.drawLabel(canvas, offsetX + 100, 15, 'feature', '#e67e22', 'lbl-feat');
+            
+            // Connections with arrows (arrow points to parent)
+            // C1 -> C2 (horizontal line) - at center height of nodes (y=140+25=165)
+            this.drawLine(canvas, offsetX + 50, 165, offsetX + 100, 165); // from C1 right edge to C2 left edge
+            
+            // C1 -> C3 (diagonal line going up-right)
+            const lineFeat = this.drawLine(canvas, offsetX + 50, 165, offsetX + 100, 75); // from C1 to C3
+            lineFeat.id = 'line-feat';
 
-        // HEAD Pointer - positioned above the feature label
-        const head = document.createElement('div');
-        head.className = 'head-pointer';
-        head.id = 'rebase-head';
-        head.innerText = 'HEAD -> feature';
-        head.style.position = 'absolute';
-        head.style.left = (offsetX + 135) + 'px';
-        head.style.top = '-15px'; 
-        canvas.appendChild(head);
+            // HEAD Pointer - positioned above the feature label
+            const head = document.createElement('div');
+            head.className = 'head-pointer';
+            head.id = 'rebase-head';
+            head.innerText = 'HEAD -> feature';
+            head.style.position = 'absolute';
+            head.style.left = (offsetX + 75) + 'px';
+            head.style.top = '-15px'; 
+            canvas.appendChild(head);
+        }, 0);
 
         controls.innerHTML = `
             <button class="sketch-btn" onclick="gitCmd.execRebase()">git rebase main</button>
@@ -631,27 +639,29 @@ const gitCmd = {
         const head = document.getElementById('rebase-head');
         const canvas = document.getElementById('canvas-4');
         
+        // Use the stored offsetX from renderRebase
+        const offsetX = this.rebaseOffsetX;
+        
         // Animation: Move C3 to be after C2
-        // Using offsetX=220, C2 is at 380, so new C3' at 540
-        const offsetX = 220;
+        // C2 is at offsetX+100, so new C3' at offsetX+200 (100px to the right)
         c3.style.transition = 'all 1s ease';
-        c3.style.left = (offsetX + 320) + 'px'; // 540px
+        c3.style.left = (offsetX + 200) + 'px';
         c3.style.top = '140px';
         
         lbl.style.transition = 'all 1s ease';
-        lbl.style.left = (offsetX + 345) + 'px'; // 565px (x + 25 for centering)
+        lbl.style.left = (offsetX + 225) + 'px'; // x + 25 for centering
         lbl.style.top = '220px';
 
         head.style.transition = 'all 1s ease';
-        head.style.left = (offsetX + 295) + 'px'; // 515px
+        head.style.left = (offsetX + 175) + 'px';
         head.style.top = '95px';
         
         // Update Line: Connect C2 to New C3' (horizontal)
-        // C2 is at offsetX+160=380, right edge at 430, line to new C3 at 540
+        // C2 is at offsetX+100, right edge at offsetX+150, line to new C3 at offsetX+200
         line.style.transition = 'all 1s ease';
-        line.style.width = '110px'; 
+        line.style.width = '50px'; 
         line.style.transform = 'rotate(0deg)';
-        line.style.left = (offsetX + 210) + 'px'; // 430px (C2 right edge)
+        line.style.left = (offsetX + 150) + 'px'; // C2 right edge
         line.style.top = '165px';
         
         // Change Hash/Color to show it's a NEW commit
